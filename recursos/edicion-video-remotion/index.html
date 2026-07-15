@@ -1,0 +1,502 @@
+<title>Edita video escribiendo — juana_ia.studio</title>
+<meta name="description" content="Guía gratuita: edita y crea video con Claude Code y la skill de Remotion. Instalación, setup y los prompts exactos.">
+<style>
+  :root{
+    /* Paleta Juana IA — brand book */
+    --bg-cream:#F2ECD9;
+    --bg-cream-deep:#E8E0C8;
+    --paper:#FFFFFF;
+    --terminal:#0F0F10;
+    --ink:#0F0F10;
+    --muted:#8C8A80;
+    --on-dark:#EDEAE0;
+    --border:#E1D9C2;
+
+    /* Acentos */
+    --purple:#6B4FE3;
+    --green:#4FD696;
+    --coral:#FF6B5E;
+    --yellow:#F4C135;
+    --orange:#F08A3B;   /* acento dominante de .studio */
+    --teal:#2DC4B5;
+    --link:#8EA3FF;
+    --code-gray:#8A887E;
+
+    /* macOS dots */
+    --mac-red:#FF5F57;
+    --mac-yellow:#FEBC2E;
+    --mac-green:#28C840;
+
+    --radius-l:16px;
+    --radius-m:12px;
+    --radius-pill:999px;
+
+    --sans:"Inter","Söhne",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --serif:"PP Editorial New","GT Sectra",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono","Geist Mono",ui-monospace,"SF Mono","Menlo","Cascadia Code",monospace;
+
+    --measure:64ch;
+    --wrap:840px;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg-cream);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.6;
+    letter-spacing:-0.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* Marca deliberadamente monotema: el mundo es crema + terminal. */
+  :root{color-scheme:light}
+
+  .em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-0.01em}
+  .u-purple{color:var(--purple)}
+  .u-orange{color:var(--orange)}
+  .u-coral{color:var(--coral)}
+  .u-green{color:var(--green)}
+
+  ::selection{background:var(--orange);color:#231405}
+
+  /* ---------- barra macOS fija ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    background:rgba(242,236,217,0.86);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar__inner{
+    max-width:var(--wrap);margin:0 auto;
+    display:flex;align-items:center;gap:14px;
+    padding:11px 22px;
+  }
+  .dots{display:flex;gap:8px;flex:0 0 auto}
+  .dots i{width:12px;height:12px;border-radius:50%;display:block}
+  .dots i:nth-child(1){background:var(--mac-red)}
+  .dots i:nth-child(2){background:var(--mac-yellow)}
+  .dots i:nth-child(3){background:var(--mac-green)}
+  .win{font-family:var(--mono);font-weight:700;font-size:15px;letter-spacing:-0.02em}
+  .win .cursor{color:var(--orange);animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .win .sub{display:block;font-weight:400;font-size:12px;color:var(--muted);letter-spacing:0}
+  .topbar .pill-page{
+    margin-left:auto;font-family:var(--mono);font-size:12px;
+    background:var(--terminal);color:var(--on-dark);
+    padding:5px 12px;border-radius:var(--radius-pill);
+  }
+
+  /* ---------- layout ---------- */
+  main{max-width:var(--wrap);margin:0 auto;padding:0 22px 80px}
+  section{padding:56px 0;border-top:1px dashed var(--border)}
+  section:first-of-type{border-top:0}
+  .lede{max-width:var(--measure)}
+  p{margin:0 0 18px}
+  p:last-child{margin-bottom:0}
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:var(--mono);font-size:12.5px;font-weight:500;
+    text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);
+  }
+  .eyebrow b{
+    color:#231405;background:var(--orange);
+    padding:3px 9px;border-radius:var(--radius-pill);
+    font-weight:700;letter-spacing:0.06em;
+  }
+
+  h1{
+    font-size:clamp(40px,7.4vw,72px);
+    line-height:0.98;letter-spacing:-0.035em;font-weight:800;
+    margin:22px 0 0;text-wrap:balance;
+  }
+  h2{
+    font-size:clamp(27px,4.4vw,40px);
+    line-height:1.06;letter-spacing:-0.03em;font-weight:800;
+    margin:0 0 8px;text-wrap:balance;
+  }
+  h3{font-size:19px;font-weight:700;letter-spacing:-0.02em;margin:0 0 6px}
+  .section-no{
+    font-family:var(--serif);font-style:italic;font-size:22px;
+    color:var(--orange);display:block;margin-bottom:10px;
+  }
+
+  /* ---------- hero ---------- */
+  .hero h1{margin-top:20px}
+  .hero .deck{font-size:19.5px;color:#3a382f;margin-top:22px;max-width:60ch}
+  .searchbar{
+    display:flex;align-items:center;gap:12px;
+    background:var(--paper);border:1px solid var(--border);
+    border-radius:var(--radius-pill);
+    padding:14px 20px;margin-top:30px;max-width:600px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.05);
+  }
+  .searchbar svg{flex:0 0 auto}
+  .searchbar span{font-family:var(--mono);font-size:14.5px;color:#4a483f}
+  .searchbar .blink{margin-left:auto;width:8px;height:17px;background:var(--orange);animation:blink 1.1s steps(1) infinite;border-radius:1px}
+
+  /* ---------- terminal / prompt boxes ---------- */
+  .term{
+    background:var(--terminal);border-radius:var(--radius-l);
+    padding:0;margin:22px 0;overflow:hidden;
+    box-shadow:0 2px 10px rgba(0,0,0,0.10);
+  }
+  .term__bar{
+    display:flex;align-items:center;gap:9px;
+    padding:12px 16px;border-bottom:1px solid #1f1f22;
+  }
+  .term__bar .d{width:10px;height:10px;border-radius:50%;display:block}
+  .term__bar .d.r{background:var(--mac-red)}
+  .term__bar .d.y{background:var(--mac-yellow)}
+  .term__bar .d.g{background:var(--mac-green)}
+  .term__bar .name{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-left:6px}
+  .term__body{
+    font-family:var(--mono);font-size:14px;line-height:1.75;
+    color:var(--on-dark);padding:20px 22px;overflow-x:auto;
+    white-space:pre;tab-size:2;
+  }
+  .term__body.wrap{white-space:pre-wrap}
+  .c-cmd{color:var(--green)}
+  .c-str{color:var(--orange)}
+  .c-ph{color:var(--coral)}
+  .c-com{color:var(--code-gray);font-style:italic}
+  .c-key{color:var(--coral)}
+  .c-ok{color:var(--green)}
+  .c-url{color:var(--link)}
+  .c-dim{color:var(--muted)}
+
+  /* ---------- case cards ---------- */
+  .cases{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+  .case{
+    background:var(--terminal);color:var(--on-dark);
+    border-radius:var(--radius-l);padding:26px;
+    display:flex;flex-direction:column;gap:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.10);
+  }
+  .case .tag{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:0.1em;
+    text-transform:uppercase;color:var(--terminal);
+    background:var(--orange);align-self:flex-start;
+    padding:4px 10px;border-radius:var(--radius-pill);font-weight:700;
+  }
+  .case .tag.g{background:var(--green)}
+  .case h3{color:var(--on-dark);font-size:18px}
+  .case p{color:#b9b6ab;font-size:14.5px;margin:0}
+  .case .n{font-family:var(--serif);font-style:italic;color:var(--orange);font-size:20px}
+
+  /* ---------- steps ---------- */
+  .step{margin-top:8px}
+  .step + .step{margin-top:12px}
+  ul.clean{list-style:none;margin:14px 0 0;padding:0;max-width:var(--measure)}
+  ul.clean li{position:relative;padding-left:26px;margin:0 0 12px;color:#3a382f;font-size:16px}
+  ul.clean li::before{
+    content:"▸";position:absolute;left:0;top:0;color:var(--orange);font-size:15px;
+  }
+  ul.clean li b{color:var(--ink);font-weight:700}
+  code.inline{
+    font-family:var(--mono);font-size:0.86em;
+    background:var(--bg-cream-deep);border:1px solid var(--border);
+    padding:1px 6px;border-radius:6px;color:#2a2820;
+  }
+
+  .note{
+    font-family:var(--mono);font-size:13px;color:var(--muted);
+    border-left:2px solid var(--orange);padding:2px 0 2px 14px;margin:18px 0 0;
+    max-width:var(--measure);
+  }
+
+  /* ---------- prompt block wrapper ---------- */
+  .prompt-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:34px}
+  .prompt-head .k{font-family:var(--serif);font-style:italic;color:var(--orange);font-size:20px}
+  .prompt-head h3{margin:0}
+  .why{font-size:14.5px;color:#4a483f;max-width:var(--measure);margin-top:12px}
+  .why b{color:var(--ink)}
+
+  /* ---------- CTA ---------- */
+  .cta{
+    background:var(--terminal);border-radius:var(--radius-l);
+    padding:34px 30px;margin-top:34px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.10);
+  }
+  .cta .line{font-family:var(--mono);font-size:15px;line-height:2;color:var(--on-dark)}
+  .cta .prompt-sign{color:var(--green)}
+  .cta a{color:var(--link);text-decoration:none;border-bottom:1px solid rgba(142,163,255,0.35)}
+  .cta a:hover{border-bottom-color:var(--link)}
+
+  /* ---------- footer / invaders ---------- */
+  footer{max-width:var(--wrap);margin:0 auto;padding:36px 22px 60px;text-align:center;border-top:1px dashed var(--border)}
+  .invaders{display:flex;justify-content:center;gap:16px;margin-bottom:18px}
+  .invaders svg{width:26px;height:auto;display:block}
+  .sig{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .sig b{color:var(--ink)}
+
+  a.focusable:focus-visible,button:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:4px}
+
+  @media (max-width:640px){
+    body{font-size:16px}
+    .cases{grid-template-columns:1fr}
+    section{padding:44px 0}
+    .term__body{font-size:13px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important}
+  }
+</style>
+
+<div class="topbar">
+  <div class="topbar__inner">
+    <span class="dots"><i></i><i></i><i></i></span>
+    <span class="win">juana_ia.studio<span class="cursor">_</span>
+      <span class="sub">remotion log · 2026</span>
+    </span>
+    <span class="pill-page">guía</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <span class="eyebrow"><b>Recurso gratuito</b> · edición &amp; creación de video</span>
+    <h1>Edita video <span class="em u-orange">escribiendo</span>,<br>no editando.</h1>
+    <p class="deck">Instalé Claude Code, le puse la skill de <b>Remotion</b> y le pedí las cosas por texto. Me montó los b-rolls sobre mi video hablando, dejó mi voz corriendo por debajo todo el rato, y me armó de cero un demo de un bot de WhatsApp. Cero editores abiertos. Acá tienes el flujo entero.</p>
+    <div class="searchbar">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8C8A80" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
+      <span>de hablar a cámara → a reel con b-rolls, sin tocar CapCut</span>
+      <span class="blink"></span>
+    </div>
+  </section>
+
+  <!-- ===================== QUÉ VAS A PODER HACER ===================== -->
+  <section>
+    <span class="section-no">01 — lo que vas a poder hacer</span>
+    <h2>Dos cosas reales que <span class="em u-orange">ya monté</span> así</h2>
+    <p class="lede">No es teoría. Son los dos videos con los que armé esta guía. Si te salen estos dos, te sale casi todo.</p>
+    <div class="cases">
+      <div class="case">
+        <span class="tag">Caso 01 · b-roll</span>
+        <span class="n">→</span>
+        <h3>Mi video hablando, con b-rolls encima</h3>
+        <p>Le pasé una toma mía a cámara. Claude generó los b-rolls, los colocó justo en el segundo donde hablo de cada cosa, y dejó mi voz sonando por debajo todo el tiempo — incluso cuando el b-roll está a pantalla completa.</p>
+      </div>
+      <div class="case">
+        <span class="tag g">Caso 02 · demo</span>
+        <span class="n">→</span>
+        <h3>Un demo de bot de WhatsApp, de cero</h3>
+        <p>No tenía el producto grabado. Le describí un bot inmobiliario que califica un lead — zona, presupuesto, crédito, fecha — y me montó el chat entero animado, con burbujas, tildes azules y hora. Todo con Remotion.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUÉ ES ESTO ===================== -->
+  <section>
+    <span class="section-no">02 — de qué va esto en 20 segundos</span>
+    <h2>Remotion es video hecho con <span class="em u-orange">código</span>. La skill se lo enseña a Claude.</h2>
+    <ul class="clean">
+      <li><b>Remotion</b> — un framework para crear video con React. Cada frame es código, así que se puede animar, sincronizar y renderizar con precisión de milisegundo.</li>
+      <li><b>La skill de Remotion</b> — 28 reglas que le enseñan a Claude a escribir Remotion bien (timing, audio, composición). Sin ella escribe animaciones genéricas; con ella trata el video como lo que es.</li>
+      <li><b>Tú</b> — describes el video en tu idioma. Claude escribe el código, tú lo revisas en el studio y lo mueves a ojo. No tocas una línea si no quieres.</li>
+    </ul>
+    <p class="note"># no necesitas saber React. Sí ayuda saber pedir bien — para eso es la sección 05.</p>
+  </section>
+
+  <!-- ===================== INSTALACIÓN ===================== -->
+  <section>
+    <span class="section-no">03 — instalación (una vez y ya)</span>
+    <h2>De cero a <span class="em u-orange">studio abierto</span></h2>
+    <p class="lede">Necesitas <b>Node 18+</b> instalado. Lo demás es copiar y pegar. Cinco comandos.</p>
+
+    <div class="term">
+      <div class="term__bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="name">Terminal — zsh</span></div>
+<div class="term__body"><span class="c-com"># 1. instala Claude Code</span>
+<span class="c-cmd">$ npm install -g @anthropic-ai/claude-code</span>
+
+<span class="c-com"># 2. arranca un proyecto de video (elige plantilla en blanco)</span>
+<span class="c-cmd">$ npm create video@latest</span>
+<span class="c-cmd">$ cd</span> <span class="c-str">mi-video</span>
+
+<span class="c-com"># 3. instala la skill de Remotion en el proyecto</span>
+<span class="c-cmd">$ npx skills add remotion</span>
+<span class="c-ok">  ✓ remotion-best-practices → .claude/skills/</span>
+
+<span class="c-com"># 4. abre Claude Code dentro del proyecto</span>
+<span class="c-cmd">$ claude</span></div>
+    </div>
+
+    <ul class="clean">
+      <li><code class="inline">npx skills add remotion</code> deja las reglas en <code class="inline">.claude/skills/</code>. Claude las carga solo al arrancar dentro de la carpeta — no tienes que activarlas.</li>
+      <li>Para tenerlas en <b>todos</b> tus proyectos, corre el mismo comando apuntando a <code class="inline">~/.claude/skills/</code> (global).</li>
+    </ul>
+
+    <div class="prompt-head"><span class="k">03·b</span><h3>Abre el studio para ver lo que pasa</h3></div>
+    <div class="term">
+      <div class="term__bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="name">Terminal — remotion studio</span></div>
+<div class="term__body"><span class="c-com"># el studio es tu previa en vivo, se recarga sola al editar</span>
+<span class="c-cmd">$ npm run dev</span>
+<span class="c-dim">  ➜  studio en </span><span class="c-url">http://localhost:3000</span></div>
+    </div>
+    <p class="note"># deja el studio abierto en el navegador mientras hablas con Claude. Cada cambio que él escribe, lo ves al instante.</p>
+  </section>
+
+  <!-- ===================== TUS MATERIALES ===================== -->
+  <section>
+    <span class="section-no">04 — mete tus materiales</span>
+    <h2>Todo lo tuyo va a la carpeta <span class="em u-orange">public/</span></h2>
+    <p class="lede">Remotion lee tus archivos desde <code class="inline">public/</code>. Arrastra ahí tu toma, tu audio y las imágenes que quieras de b-roll. Luego solo los nombras en el prompt.</p>
+    <div class="term">
+      <div class="term__bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="name">mi-video/public/</span></div>
+<div class="term__body"><span class="c-dim">public/</span>
+<span class="c-dim">├─</span> <span class="c-str">toma.mp4</span>        <span class="c-com"># tú hablando a cámara</span>
+<span class="c-dim">├─</span> <span class="c-str">voz.mp3</span>         <span class="c-com"># opcional: el audio ya limpio</span>
+<span class="c-dim">├─</span> <span class="c-str">musica.mp3</span>      <span class="c-com"># fondo, si quieres</span>
+<span class="c-dim">└─</span> <span class="c-str">brolls/</span>         <span class="c-com"># clips o imágenes de apoyo</span></div>
+    </div>
+  </section>
+
+  <!-- ===================== LOS PROMPTS ===================== -->
+  <section>
+    <span class="section-no">05 — los prompts (esto es el oro)</span>
+    <h2>Los <span class="em u-orange">3 prompts</span> con los que lo monté</h2>
+    <p class="lede">Cópialos, cambia lo que está en <span class="c-coral" style="color:var(--coral);font-family:var(--mono)">[corchetes rojos]</span> por lo tuyo, y pégalos en Claude Code. En ese orden.</p>
+
+    <!-- Prompt A -->
+    <div class="prompt-head"><span class="k">A</span><h3>B-rolls que caen justo donde hablas</h3></div>
+    <div class="term">
+      <div class="term__bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="name">~ prompt-brolls.md</span></div>
+<div class="term__body wrap"><span class="c-com"># tengo un video mío hablando, quiero b-rolls encima</span>
+
+Tengo un video en <span class="c-str">public/toma.mp4</span> donde hablo de <span class="c-ph">[tema]</span>.
+Móntame una composición de Remotion así:
+1) mi voz corre por debajo TODO el tiempo, sin cortes.
+2) cuando digo <span class="c-ph">"[palabra]"</span> (sobre el seg <span class="c-ph">[12]</span>), mete un
+   b-roll a pantalla completa <span class="c-ph">[3]</span> seg y luego vuelve a mí.
+3) genera o usa los b-rolls de <span class="c-str">public/brolls/</span> y colócalos
+   en el timeline donde toca, no al azar.
+Déjalo abierto en el studio para que yo lo mueva a ojo.</div>
+    </div>
+    <p class="why"><b>Por qué funciona:</b> le das el ancla exacta (la palabra + el segundo), así el b-roll cae donde tiene sentido, no relleno. Y el cierre — <span class="em u-orange">"para que yo lo mueva a ojo"</span> — le dice que no cierre nada, que te deje el control fino a ti.</p>
+
+    <!-- Prompt B -->
+    <div class="prompt-head"><span class="k">B</span><h3>Que el audio no se corte ni con los b-rolls encima</h3></div>
+    <div class="term">
+      <div class="term__bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="name">~ prompt-audio.md</span></div>
+<div class="term__body wrap"><span class="c-com"># el problema clásico: el b-roll se lleva el audio con él</span>
+
+Mi voz está dentro de <span class="c-str">public/toma.mp4</span>. Sácala a una
+pista de audio propia que suene de principio a fin.
+Los b-rolls que entren encima van MUDOS: solo imagen.
+Así se ve el b-roll pero se me sigue oyendo a mí.
+Si uso <span class="c-str">public/musica.mp3</span>, bájala a <span class="c-ph">[-18 dB]</span> cuando
+hablo y súbela en los silencios.
+Enséñame la estructura de Sequences antes de renderizar.</div>
+    </div>
+    <p class="why"><b>Por qué funciona:</b> el error típico es meter el b-roll como video-con-sonido y que pise tu voz. Aquí separas <b>una pista de audio continua</b> + <b>capas de solo-imagen</b> encima. Pedirle que te <b>enseñe la estructura antes de renderizar</b> te deja revisar sin gastar un render.</p>
+
+    <div class="term">
+      <div class="term__bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="name">así queda por dentro — src/Video.tsx</span></div>
+<div class="term__body"><span class="c-key">&lt;AbsoluteFill&gt;</span>
+  <span class="c-com">// 1 pista de voz, corre los 0 → 900 frames enteros</span>
+  <span class="c-key">&lt;Audio</span> src=<span class="c-str">{staticFile("voz.mp3")}</span> <span class="c-key">/&gt;</span>
+
+  <span class="c-com">// b-roll MUDO, solo del frame 120 al 210</span>
+  <span class="c-key">&lt;Sequence</span> from=<span class="c-str">{120}</span> durationInFrames=<span class="c-str">{90}</span><span class="c-key">&gt;</span>
+    <span class="c-key">&lt;OffthreadVideo</span> muted src=<span class="c-str">{staticFile("brolls/mapa.mp4")}</span> <span class="c-key">/&gt;</span>
+  <span class="c-key">&lt;/Sequence&gt;</span>
+<span class="c-key">&lt;/AbsoluteFill&gt;</span></div>
+    </div>
+    <p class="note"># no tienes que escribir esto. Es solo para que veas que "audio por debajo + b-roll mudo encima" es literalmente cómo lo arma.</p>
+
+    <!-- Prompt C -->
+    <div class="prompt-head"><span class="k">C</span><h3>El demo del bot de WhatsApp, de cero</h3></div>
+    <div class="term">
+      <div class="term__bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="name">~ prompt-demo-bot.md</span></div>
+<div class="term__body wrap"><span class="c-com"># no tengo el producto grabado, necesito el demo para vender</span>
+
+Móntame en Remotion un mockup de chat de WhatsApp, vertical
+<span class="c-ph">[1080x1920]</span>. Es un bot de <span class="c-ph">[inmobiliaria]</span> que califica
+un lead: pregunta <span class="c-ph">[zona, presupuesto, crédito y fecha]</span> y al
+final dice <span class="c-str">"te paso con tu asesora"</span>.
+- las burbujas van apareciendo con timing real de tecleo
+- "en línea", doble check azul, y la hora en cada mensaje
+- fondo y verdes idénticos a WhatsApp
+Que parezca una captura de verdad, no un dibujo.</div>
+    </div>
+    <p class="why"><b>Por qué funciona:</b> le das el <b>guion del chat</b> (las 4 preguntas + el cierre), no "hazme un chat". El detalle que lo vuelve creíble es el último renglón: <span class="em u-orange">"que parezca una captura de verdad, no un dibujo"</span> — eso empuja a Claude a clavar los verdes, las tildes y el timing.</p>
+  </section>
+
+  <!-- ===================== RENDER ===================== -->
+  <section>
+    <span class="section-no">06 — exporta el video</span>
+    <h2>Un comando y tienes tu <span class="em u-orange">.mp4</span></h2>
+    <p class="lede">Cuando en el studio ya se ve bien, sales del navegador y renderizas desde la terminal.</p>
+    <div class="term">
+      <div class="term__bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="name">Terminal — render</span></div>
+<div class="term__body"><span class="c-com"># CompositionId es el nombre que ves arriba a la izq del studio</span>
+<span class="c-cmd">$ npx remotion render</span> <span class="c-str">MiVideo</span> <span class="c-str">out/video.mp4</span>
+<span class="c-ok">  ✓ Rendered · out/video.mp4</span></div>
+    </div>
+    <ul class="clean">
+      <li>Vertical para reel/TikTok: pídele en el prompt <code class="inline">1080x1920</code> y listo, no cambia el comando.</li>
+      <li>¿Un cambio de última hora? No re-grabas: le dices a Claude qué mover, se actualiza el studio, y vuelves a renderizar.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== CTA ===================== -->
+  <section>
+    <h2>Y ya. De hablar a cámara a <span class="em u-orange">reel montado</span> — sin editor.</h2>
+    <p class="lede">Si montas algo con esto, enséñamelo. Me gusta ver qué le sacas.</p>
+    <div class="cta">
+      <div class="line">
+        <span class="prompt-sign">$</span> sigue-juana <span class="c-dim">— para el próximo recurso</span><br>
+        <span class="prompt-sign">→</span> <a class="focusable" href="https://instagram.com/juanaia_">@juanaia_</a> · DM abierto<br>
+        <span class="prompt-sign">→</span> <a class="focusable" href="https://juanaia.com">juanaia.com</a> <span class="c-dim">— más guías gratis</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="invaders" id="invaders" aria-hidden="true"></div>
+  <p class="sig"><b>@juanaia_</b> · juana_ia.studio · remotion log 2026</p>
+</footer>
+
+<script>
+  // Paginador space invaders — sprite 11x8 clásico, generado desde bitmap.
+  var BMP = [
+    "00100000100",
+    "00010001000",
+    "00111111100",
+    "01101110110",
+    "11111111111",
+    "10111111101",
+    "10100000101",
+    "00011011000"
+  ];
+  function invader(color){
+    var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    svg.setAttribute("viewBox","0 0 11 8");
+    svg.setAttribute("shape-rendering","crispEdges");
+    for(var y=0;y<BMP.length;y++){
+      for(var x=0;x<BMP[y].length;x++){
+        if(BMP[y][x]==="1"){
+          var r=document.createElementNS("http://www.w3.org/2000/svg","rect");
+          r.setAttribute("x",x);r.setAttribute("y",y);
+          r.setAttribute("width","1");r.setAttribute("height","1");
+          r.setAttribute("fill",color);
+          svg.appendChild(r);
+        }
+      }
+    }
+    return svg;
+  }
+  var row = document.getElementById("invaders");
+  var total = 6, active = 5; // el último, en naranja, marca "estás al final de la guía"
+  for(var i=0;i<total;i++){
+    row.appendChild(invader(i===active ? "#F08A3B" : "#D6CDB5"));
+  }
+</script>
